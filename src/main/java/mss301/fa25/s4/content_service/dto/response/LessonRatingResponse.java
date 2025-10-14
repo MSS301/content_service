@@ -1,0 +1,21 @@
+package mss301.fa25.s4.content_service.dto.response;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class LessonRatingResponse {
+    Integer id;
+    Integer lessonId;
+    String lessonTitle;
+    Integer studentId;
+    String studentName;
+    Integer rating;
+    LocalDateTime createdAt;
+}

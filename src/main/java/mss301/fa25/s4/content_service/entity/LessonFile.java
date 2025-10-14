@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "lesson_files")
-public class LessonFile {
+public class LessonFile  extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -38,11 +38,4 @@ public class LessonFile {
     @Column(name = "uploader_id")
     Integer uploaderId; // From User Service
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }

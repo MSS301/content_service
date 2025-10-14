@@ -3,6 +3,7 @@ package mss301.fa25.s4.content_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import mss301.fa25.s4.content_service.enums.GradeLevel;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "chapters")
-public class Chapter {
+public class Chapter extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -23,9 +24,9 @@ public class Chapter {
     @JoinColumn(name = "subject_id")
     Subject subject;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "grade_id")
-    Grade grade;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "grade", nullable = false, length = 20)
+    GradeLevel grade;
 
     @Column(name = "title", nullable = false)
     String title;

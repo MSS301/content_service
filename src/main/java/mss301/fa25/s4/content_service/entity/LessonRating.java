@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Builder
@@ -13,30 +11,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "lesson_feedbacks")
-public class LessonFeedback {
+@Table(name = "lesson_ratings", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"lesson_id", "student_id"})
+})
+public class LessonRating extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lesson_id")
+    @JoinColumn(name = "lesson_id", nullable = false)
     TeacherLesson lesson;
 
     @Column(name = "student_id", nullable = false)
     Integer studentId; // From User Service
 
-    @Column(name = "rating")
+    @Column(name = "rating", nullable = false)
     Integer rating; // 1-5
-
-    @Column(name = "comment", columnDefinition = "TEXT")
-    String comment;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }
