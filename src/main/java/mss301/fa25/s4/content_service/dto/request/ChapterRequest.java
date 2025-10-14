@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import mss301.fa25.s4.content_service.enums.GradeLevel;
 
 @Data
 @Builder
@@ -15,8 +16,8 @@ public class ChapterRequest {
     @NotNull(message = "Subject ID is required")
     Integer subjectId;
 
-    @NotNull(message = "Grade ID is required")
-    Integer gradeId;
+    @NotNull(message = "Grade is required")
+    GradeLevel grade;
 
     @NotBlank(message = "Chapter title is required")
     @Size(max = 255, message = "Chapter title must not exceed 255 characters")

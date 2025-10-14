@@ -2,6 +2,7 @@ package mss301.fa25.s4.content_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import mss301.fa25.s4.content_service.enums.TeacherLessonStatus;
 
 import java.time.LocalDateTime;
 
@@ -13,17 +14,20 @@ import java.time.LocalDateTime;
 public class TeacherLessonResponse {
     Integer id;
     Integer teacherId;
-    String teacherName; // Will be fetched from User Service
+    String teacherName;
     Integer curriculumLessonId;
     String curriculumLessonTitle;
     String title;
-    String status;
+    TeacherLessonStatus lessonStatus;
     Integer classId;
-    String className; // Will be fetched from User Service
+    String className;
     Integer viewCount;
     Double averageRating;
-    Integer feedbackCount;
+    Long ratingCount;
+    Long commentCount;
     Integer fileCount;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    Integer createdBy;
+    Integer updatedBy;
 }
