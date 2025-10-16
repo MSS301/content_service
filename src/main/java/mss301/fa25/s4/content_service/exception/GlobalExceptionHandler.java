@@ -1,6 +1,7 @@
 package mss301.fa25.s4.content_service.exception;
 
 import jakarta.validation.ConstraintViolation;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +21,11 @@ public class GlobalExceptionHandler {
     private static final String MAX_ATTRIBUTE = "max";
 
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
-        log.error("Exception: ", exception);
+    ResponseEntity<ApiResponse> handlingRuntimeException(@NonNull Exception ex) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
                 .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
+                .message(ex.getMessage())
                 .build();
 
         return ResponseEntity.badRequest().body(apiResponse);
