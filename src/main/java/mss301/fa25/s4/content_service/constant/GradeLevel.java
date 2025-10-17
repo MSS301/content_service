@@ -1,4 +1,4 @@
-package mss301.fa25.s4.content_service.enums;
+package mss301.fa25.s4.content_service.constant;
 
 import lombok.Getter;
 

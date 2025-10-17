@@ -8,7 +8,7 @@ import mss301.fa25.s4.content_service.dto.request.LessonRatingRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonRatingResponse;
 import mss301.fa25.s4.content_service.entity.LessonRating;
 import mss301.fa25.s4.content_service.entity.TeacherLesson;
-import mss301.fa25.s4.content_service.enums.EntityStatus;
+import mss301.fa25.s4.content_service.constant.EntityStatus;
 import mss301.fa25.s4.content_service.exception.AppException;
 import mss301.fa25.s4.content_service.exception.ErrorCode;
 import mss301.fa25.s4.content_service.mapper.LessonRatingMapper;

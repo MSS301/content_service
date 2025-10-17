@@ -4,7 +4,7 @@ import mss301.fa25.s4.content_service.dto.request.TeacherLessonRequest;
 import mss301.fa25.s4.content_service.dto.request.TeacherLessonUpdateRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonAnalyticsResponse;
 import mss301.fa25.s4.content_service.dto.response.TeacherLessonResponse;
-import mss301.fa25.s4.content_service.enums.TeacherLessonStatus;
+import mss301.fa25.s4.content_service.constant.TeacherLessonStatus;
 
 import java.util.List;
 

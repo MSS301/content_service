@@ -3,7 +3,7 @@ package mss301.fa25.s4.content_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import mss301.fa25.s4.content_service.enums.TeacherLessonStatus;
+import mss301.fa25.s4.content_service.constant.TeacherLessonStatus;
 
 import java.util.List;
 

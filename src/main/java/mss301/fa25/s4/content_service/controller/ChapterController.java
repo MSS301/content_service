@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.ChapterRequest;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.ChapterResponse;
-import mss301.fa25.s4.content_service.enums.GradeLevel;
+import mss301.fa25.s4.content_service.constant.GradeLevel;
 import mss301.fa25.s4.content_service.service.ChapterService;
 import org.springframework.web.bind.annotation.*;
 
