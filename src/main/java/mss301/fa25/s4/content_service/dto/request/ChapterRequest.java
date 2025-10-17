@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import mss301.fa25.s4.content_service.enums.GradeLevel;
+import mss301.fa25.s4.content_service.constant.GradeLevel;
 
 @Data
 @Builder

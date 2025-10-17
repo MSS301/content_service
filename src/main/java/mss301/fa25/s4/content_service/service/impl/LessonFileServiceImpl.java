@@ -8,7 +8,7 @@ import mss301.fa25.s4.content_service.dto.request.LessonFileRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonFileResponse;
 import mss301.fa25.s4.content_service.entity.LessonFile;
 import mss301.fa25.s4.content_service.entity.TeacherLesson;
-import mss301.fa25.s4.content_service.enums.EntityStatus;
+import mss301.fa25.s4.content_service.constant.EntityStatus;
 import mss301.fa25.s4.content_service.exception.AppException;
 import mss301.fa25.s4.content_service.exception.ErrorCode;
 import mss301.fa25.s4.content_service.mapper.LessonFileMapper;

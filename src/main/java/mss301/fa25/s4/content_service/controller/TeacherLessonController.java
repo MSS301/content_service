@@ -10,7 +10,7 @@ import mss301.fa25.s4.content_service.dto.request.TeacherLessonUpdateRequest;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.LessonAnalyticsResponse;
 import mss301.fa25.s4.content_service.dto.response.TeacherLessonResponse;
-import mss301.fa25.s4.content_service.enums.TeacherLessonStatus;
+import mss301.fa25.s4.content_service.constant.TeacherLessonStatus;
 import mss301.fa25.s4.content_service.service.TeacherLessonService;
 import org.springframework.web.bind.annotation.*;
 

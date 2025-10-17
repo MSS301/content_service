@@ -1,7 +1,7 @@
 package mss301.fa25.s4.content_service.repository;
 
 import mss301.fa25.s4.content_service.entity.Subject;
-import mss301.fa25.s4.content_service.enums.EntityStatus;
+import mss301.fa25.s4.content_service.constant.EntityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
