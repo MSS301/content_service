@@ -12,6 +12,7 @@ import mss301.fa25.s4.content_service.dto.response.LessonAnalyticsResponse;
 import mss301.fa25.s4.content_service.dto.response.TeacherLessonResponse;
 import mss301.fa25.s4.content_service.constant.TeacherLessonStatus;
 import mss301.fa25.s4.content_service.service.TeacherLessonService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class TeacherLessonController {
     TeacherLessonService lessonService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ApiResponse<TeacherLessonResponse> createLesson(@Valid @RequestBody TeacherLessonRequest request) {
         log.info("REST request to create teacher lesson");
         return ApiResponse.<TeacherLessonResponse>builder()
@@ -68,6 +70,7 @@ public class TeacherLessonController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @lessonSecurityService.isOwner(#id, authentication.principal)")
     public ApiResponse<TeacherLessonResponse> updateLesson(
             @PathVariable Integer id,
             @Valid @RequestBody TeacherLessonUpdateRequest request) {
@@ -78,6 +81,7 @@ public class TeacherLessonController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @lessonSecurityService.isOwner(#id, authentication.principal)")
     public ApiResponse<Void> deleteLesson(@PathVariable Integer id) {
         log.info("REST request to delete teacher lesson id: {}", id);
         lessonService.deleteLesson(id);
@@ -87,6 +91,7 @@ public class TeacherLessonController {
     }
 
     @PostMapping("/{id}/view")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<Void> incrementViewCount(@PathVariable Integer id) {
         log.info("REST request to increment view count for lesson id: {}", id);
         lessonService.incrementViewCount(id);
@@ -96,6 +101,7 @@ public class TeacherLessonController {
     }
 
     @GetMapping("/{id}/analytics")
+    @PreAuthorize("hasRole('ADMIN') or @lessonSecurityService.isOwner(#id, authentication.principal)")
     public ApiResponse<LessonAnalyticsResponse> getLessonAnalytics(@PathVariable Integer id) {
         log.info("REST request to get analytics for lesson id: {}", id);
         return ApiResponse.<LessonAnalyticsResponse>builder()

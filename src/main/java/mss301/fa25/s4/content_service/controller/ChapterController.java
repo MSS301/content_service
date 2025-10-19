@@ -10,6 +10,7 @@ import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.ChapterResponse;
 import mss301.fa25.s4.content_service.constant.GradeLevel;
 import mss301.fa25.s4.content_service.service.ChapterService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class ChapterController {
     ChapterService chapterService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ChapterResponse> createChapter(@Valid @RequestBody ChapterRequest request) {
         log.info("REST request to create chapter");
         return ApiResponse.<ChapterResponse>builder()
@@ -31,6 +33,7 @@ public class ChapterController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ApiResponse<ChapterResponse> getChapterById(@PathVariable Integer id) {
         log.info("REST request to get chapter by id: {}", id);
         return ApiResponse.<ChapterResponse>builder()
@@ -66,6 +69,7 @@ public class ChapterController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ChapterResponse> updateChapter(
             @PathVariable Integer id,
             @Valid @RequestBody ChapterRequest request) {
@@ -76,6 +80,7 @@ public class ChapterController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteChapter(@PathVariable Integer id) {
         log.info("REST request to delete chapter id: {}", id);
         chapterService.deleteChapter(id);
