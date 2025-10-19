@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -45,7 +47,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/subjects/**",
                                 "/chapters/**",
-                                "/curriculum-lessons/**").permitAll()
+                                "/curriculum-lessons/**",
+                                "/teacher-lessons/**").permitAll()
 
                         // All other requests require authentication
                         .anyRequest().authenticated()
@@ -56,7 +59,6 @@ public class SecurityConfig {
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
                 );
-
         return http.build();
     }
 
@@ -66,18 +68,36 @@ public class SecurityConfig {
                 jwtSecret.getBytes(StandardCharsets.UTF_8),
                 "HmacSHA512"
         );
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+        return NimbusJwtDecoder
+                .withSecretKey(secretKey)
+                .macAlgorithm(MacAlgorithm.HS512) // 👈 add this
+                .build();
     }
+
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        // Set custom granted authorities converter
+        converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
 
-        return jwtAuthenticationConverter;
+        // Use "sub" claim as principal (standard JWT claim for user ID)
+        converter.setPrincipalClaimName("sub");
+
+        return converter;
+    }
+
+    @Bean
+    public JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter() {
+        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+
+        // Configure to use "scope" claim
+        converter.setAuthoritiesClaimName("scope");
+
+        // Don't add prefix since your JWT already has ROLE_ prefix
+        converter.setAuthorityPrefix("");
+
+        return converter;
     }
 }
