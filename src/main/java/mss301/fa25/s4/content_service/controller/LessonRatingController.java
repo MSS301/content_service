@@ -1,5 +1,8 @@
 package mss301.fa25.s4.content_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,16 +11,19 @@ import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonRatingRequest;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.LessonRatingResponse;
+import mss301.fa25.s4.content_service.dto.response.PaginatedResponse;
 import mss301.fa25.s4.content_service.service.LessonRatingService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/lesson-ratings")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "Lesson Rating Management", description = "APIs for managing lesson ratings")
 public class LessonRatingController {
     LessonRatingService ratingService;
 
@@ -38,24 +44,25 @@ public class LessonRatingController {
     }
 
     @GetMapping
-    public ApiResponse<List<LessonRatingResponse>> getRatings(
-            @RequestParam(required = false) Integer lessonId,
-            @RequestParam(required = false) Integer studentId) {
-        log.info("REST request to get ratings");
+    @Operation(summary = "Get lesson ratings", description = "Retrieve paginated list of lesson ratings with optional filtering")
+    public PaginatedResponse<LessonRatingResponse> getRatings(
+            @Parameter(description = "Filter by lesson ID") @RequestParam(required = false) Integer lessonId,
+            @Parameter(description = "Filter by student ID") @RequestParam(required = false) Integer studentId,
+            @Parameter(description = "Pagination parameters") @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+        log.info("REST request to get ratings with pagination");
 
+        Page<LessonRatingResponse> ratings;
         if (lessonId != null) {
-            return ApiResponse.<List<LessonRatingResponse>>builder()
-                    .result(ratingService.getRatingsByLesson(lessonId))
-                    .build();
+            ratings = ratingService.getRatingsByLesson(lessonId, pageable);
         } else if (studentId != null) {
-            return ApiResponse.<List<LessonRatingResponse>>builder()
-                    .result(ratingService.getRatingsByStudent(studentId))
+            ratings = ratingService.getRatingsByStudent(studentId, pageable);
+        } else {
+            return PaginatedResponse.<LessonRatingResponse>builder()
+                    .message("Please provide lessonId or studentId parameter")
                     .build();
         }
 
-        return ApiResponse.<List<LessonRatingResponse>>builder()
-                .message("Please provide lessonId or studentId parameter")
-                .build();
+        return PaginatedResponse.of(ratings);
     }
 
     @PutMapping("/{id}")

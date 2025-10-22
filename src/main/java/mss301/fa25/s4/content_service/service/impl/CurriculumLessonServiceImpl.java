@@ -15,6 +15,8 @@ import mss301.fa25.s4.content_service.mapper.CurriculumLessonMapper;
 import mss301.fa25.s4.content_service.repository.ChapterRepository;
 import mss301.fa25.s4.content_service.repository.CurriculumLessonRepository;
 import mss301.fa25.s4.content_service.service.CurriculumLessonService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,19 +57,17 @@ public class CurriculumLessonServiceImpl implements CurriculumLessonService {
     }
 
     @Override
-    public List<CurriculumLessonResponse> getAllLessons() {
-        log.info("Getting all curriculum lessons");
-        return lessonRepository.findAll().stream()
-                .map(lessonMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<CurriculumLessonResponse> getAllLessons(Pageable pageable) {
+        log.info("Getting all curriculum lessons with pagination");
+        return lessonRepository.findAll(pageable)
+                .map(lessonMapper::toResponse);
     }
 
     @Override
-    public List<CurriculumLessonResponse> getLessonsByChapter(Integer chapterId) {
-        log.info("Getting curriculum lessons by chapter ID: {}", chapterId);
-        return lessonRepository.findByChapterIdAndStatusOrderByOrderIndexAsc(chapterId, EntityStatus.ACTIVE).stream()
-                .map(lessonMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<CurriculumLessonResponse> getLessonsByChapter(Integer chapterId, Pageable pageable) {
+        log.info("Getting curriculum lessons by chapter ID: {} with pagination", chapterId);
+        return lessonRepository.findByChapterIdAndStatus(chapterId, EntityStatus.ACTIVE, pageable)
+                .map(lessonMapper::toResponse);
     }
 
     @Override

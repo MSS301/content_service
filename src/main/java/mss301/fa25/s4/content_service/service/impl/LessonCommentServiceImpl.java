@@ -15,6 +15,8 @@ import mss301.fa25.s4.content_service.mapper.LessonCommentMapper;
 import mss301.fa25.s4.content_service.repository.LessonCommentRepository;
 import mss301.fa25.s4.content_service.repository.TeacherLessonRepository;
 import mss301.fa25.s4.content_service.service.LessonCommentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,19 +57,17 @@ public class LessonCommentServiceImpl implements LessonCommentService {
     }
 
     @Override
-    public List<LessonCommentResponse> getCommentsByLesson(Integer lessonId) {
-        log.info("Getting comments by lesson id: {}", lessonId);
-        return commentRepository.findByLessonIdAndStatusOrderByCreatedAtDesc(lessonId, EntityStatus.ACTIVE).stream()
-                .map(commentMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<LessonCommentResponse> getCommentsByLesson(Integer lessonId, Pageable pageable) {
+        log.info("Getting comments by lesson id: {} with pagination", lessonId);
+        return commentRepository.findByLessonIdAndStatus(lessonId, EntityStatus.ACTIVE, pageable)
+                .map(commentMapper::toResponse);
     }
 
     @Override
-    public List<LessonCommentResponse> getCommentsByStudent(Integer studentId) {
-        log.info("Getting comments by student id: {}", studentId);
-        return commentRepository.findByStudentIdAndStatus(studentId, EntityStatus.ACTIVE).stream()
-                .map(commentMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<LessonCommentResponse> getCommentsByStudent(Integer studentId, Pageable pageable) {
+        log.info("Getting comments by student id: {} with pagination", studentId);
+        return commentRepository.findByStudentIdAndStatus(studentId, EntityStatus.ACTIVE, pageable)
+                .map(commentMapper::toResponse);
     }
 
     @Override

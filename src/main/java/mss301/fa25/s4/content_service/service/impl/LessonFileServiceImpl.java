@@ -15,6 +15,8 @@ import mss301.fa25.s4.content_service.mapper.LessonFileMapper;
 import mss301.fa25.s4.content_service.repository.LessonFileRepository;
 import mss301.fa25.s4.content_service.repository.TeacherLessonRepository;
 import mss301.fa25.s4.content_service.service.LessonFileService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,19 +57,17 @@ public class LessonFileServiceImpl implements LessonFileService {
     }
 
     @Override
-    public List<LessonFileResponse> getFilesByLesson(Integer lessonId) {
-        log.info("Getting files by lesson id: {}", lessonId);
-        return fileRepository.findByLessonIdAndStatus(lessonId, EntityStatus.ACTIVE).stream()
-                .map(fileMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<LessonFileResponse> getFilesByLesson(Integer lessonId, Pageable pageable) {
+        log.info("Getting files by lesson id: {} with pagination", lessonId);
+        return fileRepository.findByLessonIdAndStatus(lessonId, EntityStatus.ACTIVE, pageable)
+                .map(fileMapper::toResponse);
     }
 
     @Override
-    public List<LessonFileResponse> getFilesByUploader(Integer uploaderId) {
-        log.info("Getting files by uploader id: {}", uploaderId);
-        return fileRepository.findByUploaderIdAndStatus(uploaderId, EntityStatus.ACTIVE).stream()
-                .map(fileMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<LessonFileResponse> getFilesByUploader(Integer uploaderId, Pageable pageable) {
+        log.info("Getting files by uploader id: {} with pagination", uploaderId);
+        return fileRepository.findByUploaderIdAndStatus(uploaderId, EntityStatus.ACTIVE, pageable)
+                .map(fileMapper::toResponse);
     }
 
     @Override

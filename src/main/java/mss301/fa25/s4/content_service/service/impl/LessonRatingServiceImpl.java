@@ -15,6 +15,8 @@ import mss301.fa25.s4.content_service.mapper.LessonRatingMapper;
 import mss301.fa25.s4.content_service.repository.LessonRatingRepository;
 import mss301.fa25.s4.content_service.repository.TeacherLessonRepository;
 import mss301.fa25.s4.content_service.service.LessonRatingService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,19 +62,17 @@ public class LessonRatingServiceImpl implements LessonRatingService {
     }
 
     @Override
-    public List<LessonRatingResponse> getRatingsByLesson(Integer lessonId) {
-        log.info("Getting ratings by lesson id: {}", lessonId);
-        return ratingRepository.findByLessonIdAndStatus(lessonId, EntityStatus.ACTIVE).stream()
-                .map(ratingMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<LessonRatingResponse> getRatingsByLesson(Integer lessonId, Pageable pageable) {
+        log.info("Getting ratings by lesson id: {} with pagination", lessonId);
+        return ratingRepository.findByLessonIdAndStatus(lessonId, EntityStatus.ACTIVE, pageable)
+                .map(ratingMapper::toResponse);
     }
 
     @Override
-    public List<LessonRatingResponse> getRatingsByStudent(Integer studentId) {
-        log.info("Getting ratings by student id: {}", studentId);
-        return ratingRepository.findByStudentIdAndStatus(studentId, EntityStatus.ACTIVE).stream()
-                .map(ratingMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<LessonRatingResponse> getRatingsByStudent(Integer studentId, Pageable pageable) {
+        log.info("Getting ratings by student id: {} with pagination", studentId);
+        return ratingRepository.findByStudentIdAndStatus(studentId, EntityStatus.ACTIVE, pageable)
+                .map(ratingMapper::toResponse);
     }
 
     @Override

@@ -17,6 +17,8 @@ import mss301.fa25.s4.content_service.exception.ErrorCode;
 import mss301.fa25.s4.content_service.mapper.TeacherLessonMapper;
 import mss301.fa25.s4.content_service.repository.*;
 import mss301.fa25.s4.content_service.service.TeacherLessonService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,39 +64,35 @@ public class TeacherLessonServiceImpl implements TeacherLessonService {
     }
 
     @Override
-    public List<TeacherLessonResponse> getAllLessons() {
-        log.info("Getting all teacher lessons");
-        return lessonRepository.findAll().stream()
+    public Page<TeacherLessonResponse> getAllLessons(Pageable pageable) {
+        log.info("Getting all teacher lessons with pagination");
+        return lessonRepository.findAll(pageable)
                 .map(lessonMapper::toResponse)
-                .map(this::enrichLessonResponse)
-                .collect(Collectors.toList());
+                .map(this::enrichLessonResponse);
     }
 
     @Override
-    public List<TeacherLessonResponse> getLessonsByTeacher(Integer teacherId) {
-        log.info("Getting teacher lessons by teacher ID: {}", teacherId);
-        return lessonRepository.findByTeacherIdAndStatusOrderByCreatedAtDesc(teacherId, EntityStatus.ACTIVE).stream()
+    public Page<TeacherLessonResponse> getLessonsByTeacher(Integer teacherId, Pageable pageable) {
+        log.info("Getting teacher lessons by teacher ID: {} with pagination", teacherId);
+        return lessonRepository.findByTeacherIdAndStatus(teacherId, EntityStatus.ACTIVE, pageable)
                 .map(lessonMapper::toResponse)
-                .map(this::enrichLessonResponse)
-                .collect(Collectors.toList());
+                .map(this::enrichLessonResponse);
     }
 
     @Override
-    public List<TeacherLessonResponse> getLessonsByStatus(TeacherLessonStatus status) {
-        log.info("Getting teacher lessons by status: {}", status);
-        return lessonRepository.findByLessonStatusAndStatus(status, EntityStatus.ACTIVE).stream()
+    public Page<TeacherLessonResponse> getLessonsByStatus(TeacherLessonStatus status, Pageable pageable) {
+        log.info("Getting teacher lessons by status: {} with pagination", status);
+        return lessonRepository.findByLessonStatusAndStatus(status, EntityStatus.ACTIVE, pageable)
                 .map(lessonMapper::toResponse)
-                .map(this::enrichLessonResponse)
-                .collect(Collectors.toList());
+                .map(this::enrichLessonResponse);
     }
 
     @Override
-    public List<TeacherLessonResponse> getLessonsByClass(Integer classId) {
-        log.info("Getting teacher lessons by class ID: {}", classId);
-        return lessonRepository.findByClassIdAndStatus(classId, EntityStatus.ACTIVE).stream()
+    public Page<TeacherLessonResponse> getLessonsByClass(Integer classId, Pageable pageable) {
+        log.info("Getting teacher lessons by class ID: {} with pagination", classId);
+        return lessonRepository.findByClassIdAndStatus(classId, EntityStatus.ACTIVE, pageable)
                 .map(lessonMapper::toResponse)
-                .map(this::enrichLessonResponse)
-                .collect(Collectors.toList());
+                .map(this::enrichLessonResponse);
     }
 
     @Override

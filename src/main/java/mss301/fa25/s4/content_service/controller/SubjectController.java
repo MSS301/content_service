@@ -1,5 +1,8 @@
 package mss301.fa25.s4.content_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -7,17 +10,20 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.SubjectRequest;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
+import mss301.fa25.s4.content_service.dto.response.PaginatedResponse;
 import mss301.fa25.s4.content_service.dto.response.SubjectResponse;
 import mss301.fa25.s4.content_service.service.SubjectService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/subjects")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "Subject Management", description = "APIs for managing subjects")
 public class SubjectController {
     SubjectService subjectService;
 
@@ -38,18 +44,20 @@ public class SubjectController {
     }
 
     @GetMapping
-    public ApiResponse<List<SubjectResponse>> getAllSubjects(@RequestParam(required = false) String name) {
-        log.info("REST request to get all subjects");
+    @Operation(summary = "Get all subjects", description = "Retrieve paginated list of subjects with optional name filtering")
+    public PaginatedResponse<SubjectResponse> getAllSubjects(
+            @Parameter(description = "Filter by subject name (partial match)") @RequestParam(required = false) String name,
+            @Parameter(description = "Pagination parameters") @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        log.info("REST request to get all subjects with pagination");
 
+        Page<SubjectResponse> subjects;
         if (name != null && !name.isEmpty()) {
-            return ApiResponse.<List<SubjectResponse>>builder()
-                    .result(subjectService.searchSubjectsByName(name))
-                    .build();
+            subjects = subjectService.searchSubjectsByName(name, pageable);
+        } else {
+            subjects = subjectService.getAllSubjects(pageable);
         }
 
-        return ApiResponse.<List<SubjectResponse>>builder()
-                .result(subjectService.getAllSubjects())
-                .build();
+        return PaginatedResponse.of(subjects);
     }
 
     @PutMapping("/{id}")
