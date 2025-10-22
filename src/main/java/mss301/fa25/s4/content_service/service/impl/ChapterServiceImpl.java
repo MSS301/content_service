@@ -16,6 +16,8 @@ import mss301.fa25.s4.content_service.mapper.ChapterMapper;
 import mss301.fa25.s4.content_service.repository.ChapterRepository;
 import mss301.fa25.s4.content_service.repository.SubjectRepository;
 import mss301.fa25.s4.content_service.service.ChapterService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,35 +58,31 @@ public class ChapterServiceImpl implements ChapterService {
     }
 
     @Override
-    public List<ChapterResponse> getAllChapters() {
-        log.info("Getting all chapters");
-        return chapterRepository.findAll().stream()
-                .map(chapterMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<ChapterResponse> getAllChapters(Pageable pageable) {
+        log.info("Getting all chapters with pagination");
+        return chapterRepository.findAll(pageable)
+                .map(chapterMapper::toResponse);
     }
 
     @Override
-    public List<ChapterResponse> getChaptersBySubject(Integer subjectId) {
-        log.info("Getting chapters by subject ID: {}", subjectId);
-        return chapterRepository.findBySubjectIdAndStatusOrderByOrderIndexAsc(subjectId, EntityStatus.ACTIVE).stream()
-                .map(chapterMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<ChapterResponse> getChaptersBySubject(Integer subjectId, Pageable pageable) {
+        log.info("Getting chapters by subject ID: {} with pagination", subjectId);
+        return chapterRepository.findBySubjectIdAndStatus(subjectId, EntityStatus.ACTIVE, pageable)
+                .map(chapterMapper::toResponse);
     }
 
     @Override
-    public List<ChapterResponse> getChaptersByGrade(GradeLevel grade) {
-        log.info("Getting chapters by grade: {}", grade);
-        return chapterRepository.findByGradeAndStatus(grade, EntityStatus.ACTIVE).stream()
-                .map(chapterMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<ChapterResponse> getChaptersByGrade(GradeLevel grade, Pageable pageable) {
+        log.info("Getting chapters by grade: {} with pagination", grade);
+        return chapterRepository.findByGradeAndStatus(grade, EntityStatus.ACTIVE, pageable)
+                .map(chapterMapper::toResponse);
     }
 
     @Override
-    public List<ChapterResponse> getChaptersBySubjectAndGrade(Integer subjectId, GradeLevel grade) {
-        log.info("Getting chapters by subject ID: {} and grade: {}", subjectId, grade);
-        return chapterRepository.findBySubjectIdAndGradeAndStatus(subjectId, grade, EntityStatus.ACTIVE).stream()
-                .map(chapterMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<ChapterResponse> getChaptersBySubjectAndGrade(Integer subjectId, GradeLevel grade, Pageable pageable) {
+        log.info("Getting chapters by subject ID: {} and grade: {} with pagination", subjectId, grade);
+        return chapterRepository.findBySubjectIdAndGradeAndStatus(subjectId, grade, EntityStatus.ACTIVE, pageable)
+                .map(chapterMapper::toResponse);
     }
 
     @Override

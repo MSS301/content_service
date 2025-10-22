@@ -1,5 +1,8 @@
 package mss301.fa25.s4.content_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,18 +11,21 @@ import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.ChapterRequest;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.ChapterResponse;
+import mss301.fa25.s4.content_service.dto.response.PaginatedResponse;
 import mss301.fa25.s4.content_service.constant.GradeLevel;
 import mss301.fa25.s4.content_service.service.ChapterService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/chapters")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "Chapter Management", description = "APIs for managing chapters")
 public class ChapterController {
     ChapterService chapterService;
 
@@ -42,30 +48,27 @@ public class ChapterController {
     }
 
     @GetMapping
-    public ApiResponse<List<ChapterResponse>> getAllChapters(
-            @RequestParam(required = false) Integer subjectId,
-            @RequestParam(required = false) String grade) {
-        log.info("REST request to get all chapters");
+    @Operation(summary = "Get all chapters", description = "Retrieve paginated list of chapters with optional filtering by subject and grade")
+    public PaginatedResponse<ChapterResponse> getAllChapters(
+            @Parameter(description = "Filter by subject ID") @RequestParam(required = false) Integer subjectId,
+            @Parameter(description = "Filter by grade level") @RequestParam(required = false) String grade,
+            @Parameter(description = "Pagination parameters") @PageableDefault(size = 20, sort = "orderIndex") Pageable pageable) {
+        log.info("REST request to get all chapters with pagination");
 
+        Page<ChapterResponse> chapters;
         if (subjectId != null && grade != null) {
             GradeLevel gradeLevel = GradeLevel.valueOf(grade);
-            return ApiResponse.<List<ChapterResponse>>builder()
-                    .result(chapterService.getChaptersBySubjectAndGrade(subjectId, gradeLevel))
-                    .build();
+            chapters = chapterService.getChaptersBySubjectAndGrade(subjectId, gradeLevel, pageable);
         } else if (subjectId != null) {
-            return ApiResponse.<List<ChapterResponse>>builder()
-                    .result(chapterService.getChaptersBySubject(subjectId))
-                    .build();
+            chapters = chapterService.getChaptersBySubject(subjectId, pageable);
         } else if (grade != null) {
             GradeLevel gradeLevel = GradeLevel.valueOf(grade);
-            return ApiResponse.<List<ChapterResponse>>builder()
-                    .result(chapterService.getChaptersByGrade(gradeLevel))
-                    .build();
+            chapters = chapterService.getChaptersByGrade(gradeLevel, pageable);
+        } else {
+            chapters = chapterService.getAllChapters(pageable);
         }
 
-        return ApiResponse.<List<ChapterResponse>>builder()
-                .result(chapterService.getAllChapters())
-                .build();
+        return PaginatedResponse.of(chapters);
     }
 
     @PutMapping("/{id}")
