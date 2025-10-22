@@ -13,6 +13,8 @@ import mss301.fa25.s4.content_service.exception.ErrorCode;
 import mss301.fa25.s4.content_service.mapper.SubjectMapper;
 import mss301.fa25.s4.content_service.repository.SubjectRepository;
 import mss301.fa25.s4.content_service.service.SubjectService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,19 +54,17 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public List<SubjectResponse> getAllSubjects() {
-        log.info("Getting all subjects");
-        return subjectRepository.findByStatus(EntityStatus.ACTIVE).stream()
-                .map(subjectMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<SubjectResponse> getAllSubjects(Pageable pageable) {
+        log.info("Getting all subjects with pagination");
+        return subjectRepository.findByStatus(EntityStatus.ACTIVE, pageable)
+                .map(subjectMapper::toResponse);
     }
 
     @Override
-    public List<SubjectResponse> searchSubjectsByName(String name) {
-        log.info("Searching subjects by name: {}", name);
-        return subjectRepository.findByNameContainingIgnoreCaseAndStatus(name, EntityStatus.ACTIVE).stream()
-                .map(subjectMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<SubjectResponse> searchSubjectsByName(String name, Pageable pageable) {
+        log.info("Searching subjects by name: {} with pagination", name);
+        return subjectRepository.findByNameContainingIgnoreCaseAndStatus(name, EntityStatus.ACTIVE, pageable)
+                .map(subjectMapper::toResponse);
     }
 
     @Override
