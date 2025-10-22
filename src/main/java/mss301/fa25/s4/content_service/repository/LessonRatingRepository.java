@@ -2,17 +2,22 @@ package mss301.fa25.s4.content_service.repository;
 
 import mss301.fa25.s4.content_service.entity.LessonRating;
 import mss301.fa25.s4.content_service.constant.EntityStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LessonRatingRepository extends JpaRepository<LessonRating, Integer> {
+public interface LessonRatingRepository extends JpaRepository<LessonRating, Integer>, PagingAndSortingRepository<LessonRating, Integer> {
     List<LessonRating> findByLessonIdAndStatus(Integer lessonId, EntityStatus status);
+    Page<LessonRating> findByLessonIdAndStatus(Integer lessonId, EntityStatus status, Pageable pageable);
     List<LessonRating> findByStudentIdAndStatus(Integer studentId, EntityStatus status);
+    Page<LessonRating> findByStudentIdAndStatus(Integer studentId, EntityStatus status, Pageable pageable);
     Optional<LessonRating> findByLessonIdAndStudentIdAndStatus(Integer lessonId, Integer studentId, EntityStatus status);
     boolean existsByLessonIdAndStudentIdAndStatus(Integer lessonId, Integer studentId, EntityStatus status);
 
