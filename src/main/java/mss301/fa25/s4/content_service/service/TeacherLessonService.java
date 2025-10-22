@@ -5,6 +5,8 @@ import mss301.fa25.s4.content_service.dto.request.TeacherLessonUpdateRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonAnalyticsResponse;
 import mss301.fa25.s4.content_service.dto.response.TeacherLessonResponse;
 import mss301.fa25.s4.content_service.constant.TeacherLessonStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,13 +15,17 @@ public interface TeacherLessonService {
 
     TeacherLessonResponse getLessonById(Integer id);
 
-    List<TeacherLessonResponse> getAllLessons();
+//    List<TeacherLessonResponse> getAllLessons();
+    Page<TeacherLessonResponse> getAllLessons(Pageable pageable);
 
-    List<TeacherLessonResponse> getLessonsByTeacher(Integer teacherId);
+//    List<TeacherLessonResponse> getLessonsByTeacher(Integer teacherId);
+    Page<TeacherLessonResponse> getLessonsByTeacher(Integer teacherId, Pageable pageable);
 
-    List<TeacherLessonResponse> getLessonsByStatus(TeacherLessonStatus status);
+//    List<TeacherLessonResponse> getLessonsByStatus(TeacherLessonStatus status);
+    Page<TeacherLessonResponse> getLessonsByStatus(TeacherLessonStatus status, Pageable pageable);
 
-    List<TeacherLessonResponse> getLessonsByClass(Integer classId);
+//    List<TeacherLessonResponse> getLessonsByClass(Integer classId);
+    Page<TeacherLessonResponse> getLessonsByClass(Integer classId, Pageable pageable);
 
     TeacherLessonResponse updateLesson(Integer id, TeacherLessonUpdateRequest request);
 
