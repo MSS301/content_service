@@ -1,5 +1,8 @@
 package mss301.fa25.s4.content_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,16 +11,19 @@ import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonCommentRequest;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.LessonCommentResponse;
+import mss301.fa25.s4.content_service.dto.response.PaginatedResponse;
 import mss301.fa25.s4.content_service.service.LessonCommentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/lesson-comments")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "Lesson Comment Management", description = "APIs for managing lesson comments")
 public class LessonCommentController {
     LessonCommentService commentService;
 
@@ -38,24 +44,25 @@ public class LessonCommentController {
     }
 
     @GetMapping
-    public ApiResponse<List<LessonCommentResponse>> getComments(
-            @RequestParam(required = false) Integer lessonId,
-            @RequestParam(required = false) Integer studentId) {
-        log.info("REST request to get comments");
+    @Operation(summary = "Get lesson comments", description = "Retrieve paginated list of lesson comments with optional filtering")
+    public PaginatedResponse<LessonCommentResponse> getComments(
+            @Parameter(description = "Filter by lesson ID") @RequestParam(required = false) Integer lessonId,
+            @Parameter(description = "Filter by student ID") @RequestParam(required = false) Integer studentId,
+            @Parameter(description = "Pagination parameters") @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+        log.info("REST request to get comments with pagination");
 
+        Page<LessonCommentResponse> comments;
         if (lessonId != null) {
-            return ApiResponse.<List<LessonCommentResponse>>builder()
-                    .result(commentService.getCommentsByLesson(lessonId))
-                    .build();
+            comments = commentService.getCommentsByLesson(lessonId, pageable);
         } else if (studentId != null) {
-            return ApiResponse.<List<LessonCommentResponse>>builder()
-                    .result(commentService.getCommentsByStudent(studentId))
+            comments = commentService.getCommentsByStudent(studentId, pageable);
+        } else {
+            return PaginatedResponse.<LessonCommentResponse>builder()
+                    .message("Please provide lessonId or studentId parameter")
                     .build();
         }
 
-        return ApiResponse.<List<LessonCommentResponse>>builder()
-                .message("Please provide lessonId or studentId parameter")
-                .build();
+        return PaginatedResponse.of(comments);
     }
 
     @PutMapping("/{id}")
