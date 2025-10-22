@@ -1,3 +1,9 @@
+# Configure Environment (Optional)
+
+Copy `.env.example` → `.env` instruction if env not work: link (https://drive.google.com/drive/folders/1gvLupFafEiIawT8r3zC2EZoUc3K0NXjB?usp=sharing).
+
+---
+
 # Content Service
 
 Content Service is a microservice responsible for managing educational content including subjects, chapters, curriculum lessons, teacher lessons, ratings, comments, and files.
