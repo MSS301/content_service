@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonRatingRequest;
+import mss301.fa25.s4.content_service.dto.request.SelfLessonRatingRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonRatingResponse;
 import mss301.fa25.s4.content_service.entity.LessonRating;
 import mss301.fa25.s4.content_service.entity.TeacherLesson;
@@ -50,6 +51,36 @@ public class LessonRatingServiceImpl implements LessonRatingService {
         rating = ratingRepository.save(rating);
 
         return ratingMapper.toResponse(rating);
+    }
+
+    @Override
+    @Transactional
+    public LessonRatingResponse rateLessonSelf(SelfLessonRatingRequest request, Integer studentId) {
+        log.info("Student {} rating lesson id: {}", studentId, request.getLessonId());
+
+        if (ratingRepository.existsByLessonIdAndStudentIdAndStatus(
+                request.getLessonId(), studentId, EntityStatus.ACTIVE)) {
+            throw new AppException(ErrorCode.RATING_ALREADY_EXISTS);
+        }
+
+        TeacherLesson lesson = lessonRepository.findById(request.getLessonId())
+                .orElseThrow(() -> new AppException(ErrorCode.TEACHER_LESSON_NOT_FOUND));
+
+        LessonRating rating = LessonRating.builder()
+                .lesson(lesson)
+                .studentId(studentId)
+                .rating(request.getRating())
+                .build();
+
+        rating = ratingRepository.save(rating);
+        return ratingMapper.toResponse(rating);
+    }
+
+    @Override
+    public Page<LessonRatingResponse> getMyRatings(Integer studentId, Pageable pageable) {
+        log.info("Getting ratings for student id: {}", studentId);
+        return ratingRepository.findByStudentIdAndStatus(studentId, EntityStatus.ACTIVE, pageable)
+                .map(ratingMapper::toResponse);
     }
 
     @Override
