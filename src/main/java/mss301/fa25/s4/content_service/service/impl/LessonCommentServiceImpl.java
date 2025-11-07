@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonCommentRequest;
+import mss301.fa25.s4.content_service.dto.request.SelfLessonCommentRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonCommentResponse;
 import mss301.fa25.s4.content_service.entity.LessonComment;
 import mss301.fa25.s4.content_service.entity.TeacherLesson;
@@ -45,6 +46,31 @@ public class LessonCommentServiceImpl implements LessonCommentService {
         comment = commentRepository.save(comment);
 
         return commentMapper.toResponse(comment);
+    }
+
+    @Override
+    @Transactional
+    public LessonCommentResponse createCommentSelf(SelfLessonCommentRequest request, Integer studentId) {
+        log.info("Student {} commenting on lesson id: {}", studentId, request.getLessonId());
+
+        TeacherLesson lesson = lessonRepository.findById(request.getLessonId())
+                .orElseThrow(() -> new AppException(ErrorCode.TEACHER_LESSON_NOT_FOUND));
+
+        LessonComment comment = LessonComment.builder()
+                .lesson(lesson)
+                .studentId(studentId)
+                .comment(request.getComment())
+                .build();
+
+        comment = commentRepository.save(comment);
+        return commentMapper.toResponse(comment);
+    }
+
+    @Override
+    public Page<LessonCommentResponse> getMyComments(Integer studentId, Pageable pageable) {
+        log.info("Getting comments for student id: {}", studentId);
+        return commentRepository.findByStudentIdAndStatus(studentId, EntityStatus.ACTIVE, pageable)
+                .map(commentMapper::toResponse);
     }
 
     @Override

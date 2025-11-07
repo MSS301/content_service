@@ -22,6 +22,7 @@ public interface TeacherLessonRepository extends JpaRepository<TeacherLesson, In
     Page<TeacherLesson> findByTeacherIdAndLessonStatusAndStatus(Integer teacherId, TeacherLessonStatus lessonStatus, EntityStatus status, Pageable pageable);
     List<TeacherLesson> findByClassIdAndStatus(Integer classId, EntityStatus status);
     Page<TeacherLesson> findByClassIdAndStatus(Integer classId, EntityStatus status, Pageable pageable);
+    Page<TeacherLesson> findByClassIdAndLessonStatusAndStatus(Integer classId, TeacherLessonStatus lessonStatus, EntityStatus status, Pageable pageable);
 
     @Query("SELECT tl FROM TeacherLesson tl WHERE tl.teacherId = :teacherId AND tl.status = :status ORDER BY tl.createdAt DESC")
     List<TeacherLesson> findByTeacherIdAndStatusOrderByCreatedAtDesc(Integer teacherId, EntityStatus status);

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import mss301.fa25.s4.content_service.dto.request.SelfTeacherLessonRequest;
 import mss301.fa25.s4.content_service.dto.request.TeacherLessonRequest;
 import mss301.fa25.s4.content_service.dto.request.TeacherLessonUpdateRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonAnalyticsResponse;
@@ -55,6 +56,37 @@ public class TeacherLessonServiceImpl implements TeacherLessonService {
     }
 
     @Override
+    @Transactional
+    public TeacherLessonResponse createSelfLesson(SelfTeacherLessonRequest request, Integer teacherId) {
+        log.info("Creating new teacher lesson for teacher ID: {}", teacherId);
+
+        TeacherLesson lesson = TeacherLesson.builder()
+                .teacherId(teacherId)
+                .title(request.getTitle())
+                .lessonStatus(request.getLessonStatus() != null ? request.getLessonStatus() : TeacherLessonStatus.DRAFT)
+                .classId(request.getClassId())
+                .viewCount(0)
+                .build();
+
+        if (request.getCurriculumLessonId() != null) {
+            CurriculumLesson curriculumLesson = curriculumLessonRepository.findById(request.getCurriculumLessonId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CURRICULUM_LESSON_NOT_FOUND));
+            lesson.setCurriculumLesson(curriculumLesson);
+        }
+
+        lesson = lessonRepository.save(lesson);
+        return enrichLessonResponse(lessonMapper.toResponse(lesson));
+    }
+
+    @Override
+    public Page<TeacherLessonResponse> getMyLessons(Integer teacherId, Pageable pageable) {
+        log.info("Getting lessons for teacher ID: {}", teacherId);
+        return lessonRepository.findByTeacherIdAndStatus(teacherId, EntityStatus.ACTIVE, pageable)
+                .map(lessonMapper::toResponse)
+                .map(this::enrichLessonResponse);
+    }
+
+    @Override
     public TeacherLessonResponse getLessonById(Integer id) {
         log.info("Getting teacher lesson by id: {}", id);
         TeacherLesson lesson = lessonRepository.findById(id)
@@ -91,6 +123,15 @@ public class TeacherLessonServiceImpl implements TeacherLessonService {
     public Page<TeacherLessonResponse> getLessonsByClass(Integer classId, Pageable pageable) {
         log.info("Getting teacher lessons by class ID: {} with pagination", classId);
         return lessonRepository.findByClassIdAndStatus(classId, EntityStatus.ACTIVE, pageable)
+                .map(lessonMapper::toResponse)
+                .map(this::enrichLessonResponse);
+    }
+
+    @Override
+    public Page<TeacherLessonResponse> getPublishedLessonsByClass(Integer classId, Pageable pageable) {
+        log.info("Getting published teacher lessons for class ID: {} with pagination", classId);
+        return lessonRepository.findByClassIdAndLessonStatusAndStatus(
+                        classId, TeacherLessonStatus.PUBLISHED, EntityStatus.ACTIVE, pageable)
                 .map(lessonMapper::toResponse)
                 .map(this::enrichLessonResponse);
     }

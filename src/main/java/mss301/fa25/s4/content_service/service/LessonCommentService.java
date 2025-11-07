@@ -1,6 +1,7 @@
 package mss301.fa25.s4.content_service.service;
 
 import mss301.fa25.s4.content_service.dto.request.LessonCommentRequest;
+import mss301.fa25.s4.content_service.dto.request.SelfLessonCommentRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonCommentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,10 @@ import java.util.List;
 
 public interface LessonCommentService {
     LessonCommentResponse createComment(LessonCommentRequest request);
+    
+    LessonCommentResponse createCommentSelf(SelfLessonCommentRequest request, Integer studentId);
+    
+    Page<LessonCommentResponse> getMyComments(Integer studentId, Pageable pageable);
 
     LessonCommentResponse getCommentById(Integer id);
 

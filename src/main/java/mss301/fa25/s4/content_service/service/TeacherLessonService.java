@@ -1,5 +1,6 @@
 package mss301.fa25.s4.content_service.service;
 
+import mss301.fa25.s4.content_service.dto.request.SelfTeacherLessonRequest;
 import mss301.fa25.s4.content_service.dto.request.TeacherLessonRequest;
 import mss301.fa25.s4.content_service.dto.request.TeacherLessonUpdateRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonAnalyticsResponse;
@@ -12,6 +13,10 @@ import java.util.List;
 
 public interface TeacherLessonService {
     TeacherLessonResponse createLesson(TeacherLessonRequest request);
+    
+    TeacherLessonResponse createSelfLesson(SelfTeacherLessonRequest request, Integer teacherId);
+    
+    Page<TeacherLessonResponse> getMyLessons(Integer teacherId, Pageable pageable);
 
     TeacherLessonResponse getLessonById(Integer id);
 
@@ -26,6 +31,8 @@ public interface TeacherLessonService {
 
 //    List<TeacherLessonResponse> getLessonsByClass(Integer classId);
     Page<TeacherLessonResponse> getLessonsByClass(Integer classId, Pageable pageable);
+    
+    Page<TeacherLessonResponse> getPublishedLessonsByClass(Integer classId, Pageable pageable);
 
     TeacherLessonResponse updateLesson(Integer id, TeacherLessonUpdateRequest request);
 

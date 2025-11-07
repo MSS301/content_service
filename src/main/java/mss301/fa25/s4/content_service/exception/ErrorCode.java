@@ -53,6 +53,9 @@ public enum ErrorCode {
     // Comment errors
     LESSON_COMMENT_NOT_FOUND(2020, "Lesson comment not found", HttpStatus.NOT_FOUND),
     COMMENT_UNAUTHORIZED(2021, "You are not authorized to modify this comment", HttpStatus.FORBIDDEN),
+    
+    // User Profile errors
+    USER_PROFILE_NOT_FOUND(2022, "User profile not found in auth service", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
