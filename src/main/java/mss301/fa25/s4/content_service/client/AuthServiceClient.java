@@ -4,10 +4,14 @@ import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.UserProfileResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "auth-service", contextId = "authServiceClient", path = "/auth/user-profiles")
 public interface AuthServiceClient {
     
     @GetMapping("/me")
     ApiResponse<UserProfileResponse> getCurrentUserProfile();
+    
+    @GetMapping("/{id}")
+    ApiResponse<UserProfileResponse> getUserProfileById(@PathVariable("id") Integer id);
 }

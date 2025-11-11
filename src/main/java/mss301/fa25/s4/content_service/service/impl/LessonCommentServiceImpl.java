@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonCommentRequest;
 import mss301.fa25.s4.content_service.dto.request.SelfLessonCommentRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonCommentResponse;
+import mss301.fa25.s4.content_service.dto.response.UserProfileResponse;
 import mss301.fa25.s4.content_service.entity.LessonComment;
 import mss301.fa25.s4.content_service.entity.TeacherLesson;
 import mss301.fa25.s4.content_service.constant.EntityStatus;
@@ -16,6 +17,7 @@ import mss301.fa25.s4.content_service.mapper.LessonCommentMapper;
 import mss301.fa25.s4.content_service.repository.LessonCommentRepository;
 import mss301.fa25.s4.content_service.repository.TeacherLessonRepository;
 import mss301.fa25.s4.content_service.service.LessonCommentService;
+import mss301.fa25.s4.content_service.service.UserProfileClientService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class LessonCommentServiceImpl implements LessonCommentService {
     LessonCommentRepository commentRepository;
     TeacherLessonRepository lessonRepository;
     LessonCommentMapper commentMapper;
+    UserProfileClientService userProfileClientService;
 
     @Override
     @Transactional
@@ -86,7 +89,16 @@ public class LessonCommentServiceImpl implements LessonCommentService {
     public Page<LessonCommentResponse> getCommentsByLesson(Integer lessonId, Pageable pageable) {
         log.info("Getting comments by lesson id: {} with pagination", lessonId);
         return commentRepository.findByLessonIdAndStatus(lessonId, EntityStatus.ACTIVE, pageable)
-                .map(commentMapper::toResponse);
+                .map(comment -> {
+                    LessonCommentResponse response = commentMapper.toResponse(comment);
+                    try {
+                        UserProfileResponse profile = userProfileClientService.getUserProfileById(comment.getStudentId());
+                        response.setStudentName(profile.getFullName());
+                    } catch (Exception e) {
+                        log.warn("Failed to fetch user profile for studentId: {}", comment.getStudentId());
+                    }
+                    return response;
+                });
     }
 
     @Override
@@ -108,7 +120,18 @@ public class LessonCommentServiceImpl implements LessonCommentService {
         }
 
         comment = commentRepository.save(comment);
-        return commentMapper.toResponse(comment);
+        
+        // Enrich response with user profile data
+        LessonCommentResponse response = commentMapper.toResponse(comment);
+        try {
+            UserProfileResponse userProfile = userProfileClientService.getUserProfileById(comment.getStudentId());
+            response.setStudentName(userProfile.getFullName());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user profile for student ID: {}", comment.getStudentId(), e);
+            response.setStudentName("User #" + comment.getStudentId());
+        }
+        
+        return response;
     }
 
     @Override

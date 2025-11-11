@@ -23,11 +23,12 @@ public class TeacherLesson extends BaseEntity{
     @Column(name = "teacher_id", nullable = false)
     Integer teacherId; // From User Service
 
+    // Optional - Teacher can create custom lessons without curriculum reference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curriculum_lesson_id")
+    @JoinColumn(name = "curriculum_lesson_id", nullable = true)
     CurriculumLesson curriculumLesson;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     String title;
 
     @Enumerated(EnumType.STRING)

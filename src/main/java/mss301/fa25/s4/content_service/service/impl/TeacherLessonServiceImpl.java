@@ -49,6 +49,9 @@ public class TeacherLessonServiceImpl implements TeacherLessonService {
             CurriculumLesson curriculumLesson = curriculumLessonRepository.findById(request.getCurriculumLessonId())
                     .orElseThrow(() -> new AppException(ErrorCode.CURRICULUM_LESSON_NOT_FOUND));
             lesson.setCurriculumLesson(curriculumLesson);
+            log.info("Lesson linked to curriculum lesson ID: {}", request.getCurriculumLessonId());
+        } else {
+            log.info("Creating custom lesson without curriculum reference");
         }
 
         lesson = lessonRepository.save(lesson);
@@ -72,6 +75,9 @@ public class TeacherLessonServiceImpl implements TeacherLessonService {
             CurriculumLesson curriculumLesson = curriculumLessonRepository.findById(request.getCurriculumLessonId())
                     .orElseThrow(() -> new AppException(ErrorCode.CURRICULUM_LESSON_NOT_FOUND));
             lesson.setCurriculumLesson(curriculumLesson);
+            log.info("Lesson linked to curriculum lesson ID: {}", request.getCurriculumLessonId());
+        } else {
+            log.info("Creating custom lesson without curriculum reference");
         }
 
         lesson = lessonRepository.save(lesson);
@@ -158,6 +164,24 @@ public class TeacherLessonServiceImpl implements TeacherLessonService {
         }
 
         lesson = lessonRepository.save(lesson);
+        return enrichLessonResponse(lessonMapper.toResponse(lesson));
+    }
+
+    @Override
+    @Transactional
+    public TeacherLessonResponse publishLesson(Integer id) {
+        log.info("Publishing teacher lesson id: {}", id);
+        TeacherLesson lesson = lessonRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.TEACHER_LESSON_NOT_FOUND));
+
+        if (lesson.getLessonStatus() != TeacherLessonStatus.DRAFT) {
+            throw new AppException(ErrorCode.LESSON_NOT_DRAFT);
+        }
+
+        lesson.setLessonStatus(TeacherLessonStatus.PUBLISHED);
+        lesson = lessonRepository.save(lesson);
+        log.info("Lesson id: {} successfully published", id);
+        
         return enrichLessonResponse(lessonMapper.toResponse(lesson));
     }
 

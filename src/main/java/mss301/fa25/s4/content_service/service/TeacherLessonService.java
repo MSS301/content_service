@@ -36,6 +36,8 @@ public interface TeacherLessonService {
 
     TeacherLessonResponse updateLesson(Integer id, TeacherLessonUpdateRequest request);
 
+    TeacherLessonResponse publishLesson(Integer id);
+
     void deleteLesson(Integer id);
 
     void incrementViewCount(Integer id);

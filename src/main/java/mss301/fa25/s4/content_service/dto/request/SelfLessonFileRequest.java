@@ -10,18 +10,15 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LessonFileRequest {
+public class SelfLessonFileRequest {
     @NotNull(message = "Lesson ID is required")
     Integer lessonId;
 
     @NotBlank(message = "File URL is required")
     String fileUrl;
 
-    // Optional fields - will be extracted from URL or file metadata
+    // Optional fields
     String fileName;
     String mimeType;
     Long sizeBytes;
-
-    @NotNull(message = "Uploader ID is required")
-    Integer uploaderId;
 }

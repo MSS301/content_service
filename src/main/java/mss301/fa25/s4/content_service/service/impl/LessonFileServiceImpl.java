@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonFileRequest;
+import mss301.fa25.s4.content_service.dto.request.SelfLessonFileRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonFileResponse;
 import mss301.fa25.s4.content_service.entity.LessonFile;
 import mss301.fa25.s4.content_service.entity.TeacherLesson;
@@ -42,6 +43,37 @@ public class LessonFileServiceImpl implements LessonFileService {
 
         LessonFile file = fileMapper.toEntity(request);
         file.setLesson(lesson);
+        file = fileRepository.save(file);
+
+        return fileMapper.toResponse(file);
+    }
+
+    @Override
+    @Transactional
+    public LessonFileResponse uploadFileSelf(SelfLessonFileRequest request, Integer uploaderId) {
+        log.info("Uploading file for lesson id: {} by uploader id: {}", request.getLessonId(), uploaderId);
+
+        TeacherLesson lesson = lessonRepository.findById(request.getLessonId())
+                .orElseThrow(() -> new AppException(ErrorCode.TEACHER_LESSON_NOT_FOUND));
+
+        // Extract file name from URL if not provided
+        String fileName = request.getFileName();
+        if (fileName == null || fileName.isEmpty()) {
+            String url = request.getFileUrl();
+            fileName = url.substring(url.lastIndexOf('/') + 1);
+        }
+
+        LessonFile file = LessonFile.builder()
+                .lesson(lesson)
+                .fileName(fileName)
+                .fileUrl(request.getFileUrl())
+                .mimeType(request.getMimeType())
+                .sizeBytes(request.getSizeBytes())
+                .uploaderId(uploaderId)
+                .build();
+
+        // Set status separately since it's from BaseEntity
+        file.setStatus(EntityStatus.ACTIVE);
         file = fileRepository.save(file);
 
         return fileMapper.toResponse(file);

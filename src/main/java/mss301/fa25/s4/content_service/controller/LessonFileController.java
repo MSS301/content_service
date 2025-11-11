@@ -9,13 +9,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonFileRequest;
+import mss301.fa25.s4.content_service.dto.request.SelfLessonFileRequest;
 import mss301.fa25.s4.content_service.dto.response.ApiResponse;
 import mss301.fa25.s4.content_service.dto.response.LessonFileResponse;
 import mss301.fa25.s4.content_service.dto.response.PaginatedResponse;
 import mss301.fa25.s4.content_service.service.LessonFileService;
+import mss301.fa25.s4.content_service.service.UserProfileClientService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,12 +30,28 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Lesson File Management", description = "APIs for managing lesson files")
 public class LessonFileController {
     LessonFileService fileService;
+    UserProfileClientService userProfileClientService;
 
     @PostMapping
     public ApiResponse<LessonFileResponse> uploadFile(@Valid @RequestBody LessonFileRequest request) {
         log.info("REST request to upload file");
         return ApiResponse.<LessonFileResponse>builder()
                 .result(fileService.uploadFile(request))
+                .build();
+    }
+
+    @PostMapping("/me")
+    @Operation(summary = "Upload file as current user", description = "Upload a file for a lesson using the authenticated user's profile")
+    public ApiResponse<LessonFileResponse> uploadFileSelf(
+            @Valid @RequestBody SelfLessonFileRequest request,
+            Authentication authentication) {
+        log.info("REST request to upload file as self");
+        JwtAuthenticationToken token = (JwtAuthenticationToken) authentication;
+        String accountId = token.getTokenAttributes().get("sub").toString();
+        Integer uploaderId = userProfileClientService.getUserProfileId(accountId);
+        
+        return ApiResponse.<LessonFileResponse>builder()
+                .result(fileService.uploadFileSelf(request, uploaderId))
                 .build();
     }
 
@@ -48,7 +68,7 @@ public class LessonFileController {
     public PaginatedResponse<LessonFileResponse> getFiles(
             @Parameter(description = "Filter by lesson ID") @RequestParam(required = false) Integer lessonId,
             @Parameter(description = "Filter by uploader ID") @RequestParam(required = false) Integer uploaderId,
-            @Parameter(description = "Pagination parameters") @PageableDefault(size = 20, sort = "uploadedAt") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         log.info("REST request to get files with pagination");
 
         Page<LessonFileResponse> files;

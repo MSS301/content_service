@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import mss301.fa25.s4.content_service.dto.request.LessonRatingRequest;
 import mss301.fa25.s4.content_service.dto.request.SelfLessonRatingRequest;
 import mss301.fa25.s4.content_service.dto.response.LessonRatingResponse;
+import mss301.fa25.s4.content_service.dto.response.UserProfileResponse;
 import mss301.fa25.s4.content_service.entity.LessonRating;
 import mss301.fa25.s4.content_service.entity.TeacherLesson;
 import mss301.fa25.s4.content_service.constant.EntityStatus;
@@ -16,6 +17,7 @@ import mss301.fa25.s4.content_service.mapper.LessonRatingMapper;
 import mss301.fa25.s4.content_service.repository.LessonRatingRepository;
 import mss301.fa25.s4.content_service.repository.TeacherLessonRepository;
 import mss301.fa25.s4.content_service.service.LessonRatingService;
+import mss301.fa25.s4.content_service.service.UserProfileClientService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class LessonRatingServiceImpl implements LessonRatingService {
     LessonRatingRepository ratingRepository;
     TeacherLessonRepository lessonRepository;
     LessonRatingMapper ratingMapper;
+    UserProfileClientService userProfileClientService;
 
     @Override
     @Transactional
@@ -58,6 +61,7 @@ public class LessonRatingServiceImpl implements LessonRatingService {
     public LessonRatingResponse rateLessonSelf(SelfLessonRatingRequest request, Integer studentId) {
         log.info("Student {} rating lesson id: {}", studentId, request.getLessonId());
 
+        // Check for active rating
         if (ratingRepository.existsByLessonIdAndStudentIdAndStatus(
                 request.getLessonId(), studentId, EntityStatus.ACTIVE)) {
             throw new AppException(ErrorCode.RATING_ALREADY_EXISTS);
@@ -66,14 +70,37 @@ public class LessonRatingServiceImpl implements LessonRatingService {
         TeacherLesson lesson = lessonRepository.findById(request.getLessonId())
                 .orElseThrow(() -> new AppException(ErrorCode.TEACHER_LESSON_NOT_FOUND));
 
-        LessonRating rating = LessonRating.builder()
-                .lesson(lesson)
-                .studentId(studentId)
-                .rating(request.getRating())
-                .build();
+        // Check for inactive rating - reactivate it instead of creating new
+        LessonRating rating = ratingRepository.findByLessonIdAndStudentIdAndStatus(
+                request.getLessonId(), studentId, EntityStatus.INACTIVE)
+                .map(existingRating -> {
+                    log.info("Reactivating previously deleted rating id: {}", existingRating.getId());
+                    existingRating.setRating(request.getRating());
+                    existingRating.setStatus(EntityStatus.ACTIVE);
+                    return existingRating;
+                })
+                .orElseGet(() -> {
+                    log.info("Creating new rating");
+                    return LessonRating.builder()
+                            .lesson(lesson)
+                            .studentId(studentId)
+                            .rating(request.getRating())
+                            .build();
+                });
 
         rating = ratingRepository.save(rating);
-        return ratingMapper.toResponse(rating);
+        
+        // Enrich response with user profile data
+        LessonRatingResponse response = ratingMapper.toResponse(rating);
+        try {
+            UserProfileResponse userProfile = userProfileClientService.getUserProfileById(studentId);
+            response.setStudentName(userProfile.getFullName());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user profile for student ID: {}", studentId, e);
+            response.setStudentName("User #" + studentId);
+        }
+        
+        return response;
     }
 
     @Override
@@ -118,7 +145,18 @@ public class LessonRatingServiceImpl implements LessonRatingService {
         }
 
         rating = ratingRepository.save(rating);
-        return ratingMapper.toResponse(rating);
+        
+        // Enrich response with user profile data
+        LessonRatingResponse response = ratingMapper.toResponse(rating);
+        try {
+            UserProfileResponse userProfile = userProfileClientService.getUserProfileById(rating.getStudentId());
+            response.setStudentName(userProfile.getFullName());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user profile for student ID: {}", rating.getStudentId(), e);
+            response.setStudentName("User #" + rating.getStudentId());
+        }
+        
+        return response;
     }
 
     @Override
