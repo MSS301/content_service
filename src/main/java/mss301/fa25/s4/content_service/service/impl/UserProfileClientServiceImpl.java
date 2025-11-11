@@ -50,4 +50,20 @@ public class UserProfileClientServiceImpl implements UserProfileClientService {
             throw new AppException(ErrorCode.USER_PROFILE_NOT_FOUND);
         }
     }
+
+    @Override
+    public UserProfileResponse getUserProfileById(Integer profileId) {
+        log.info("Fetching user profile by ID: {}", profileId);
+        try {
+            ApiResponse<UserProfileResponse> response = authServiceClient.getUserProfileById(profileId);
+            if (response.getResult() == null) {
+                throw new AppException(ErrorCode.USER_PROFILE_NOT_FOUND);
+            }
+            log.info("Successfully fetched user profile: {}", response.getResult().getFullName());
+            return response.getResult();
+        } catch (Exception e) {
+            log.error("Error fetching user profile by ID from auth-service: {}", e.getMessage());
+            throw new AppException(ErrorCode.USER_PROFILE_NOT_FOUND);
+        }
+    }
 }

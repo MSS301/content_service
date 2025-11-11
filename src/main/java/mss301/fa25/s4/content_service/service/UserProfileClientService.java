@@ -16,4 +16,11 @@ public interface UserProfileClientService {
      * @return UserProfileResponse
      */
     UserProfileResponse getUserProfile(String accountId);
+    
+    /**
+     * Get user profile by profile ID
+     * @param profileId UserProfile ID
+     * @return UserProfileResponse
+     */
+    UserProfileResponse getUserProfileById(Integer profileId);
 }

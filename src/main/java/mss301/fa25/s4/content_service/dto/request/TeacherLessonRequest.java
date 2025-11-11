@@ -16,6 +16,10 @@ public class TeacherLessonRequest {
     @NotNull(message = "Teacher ID is required")
     Integer teacherId;
 
+    /**
+     * Optional - Link to curriculum lesson if following standard curriculum
+     * Can be null for custom teacher-created lessons
+     */
     Integer curriculumLessonId;
 
     @NotBlank(message = "Lesson title is required")

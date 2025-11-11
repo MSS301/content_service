@@ -12,6 +12,10 @@ import mss301.fa25.s4.content_service.constant.TeacherLessonStatus;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SelfTeacherLessonRequest {
+    /**
+     * Optional - Link to curriculum lesson if following standard curriculum
+     * Can be null for custom teacher-created lessons
+     */
     Integer curriculumLessonId;
 
     @NotBlank(message = "Lesson title is required")
