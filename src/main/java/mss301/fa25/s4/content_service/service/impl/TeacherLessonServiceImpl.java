@@ -169,6 +169,24 @@ public class TeacherLessonServiceImpl implements TeacherLessonService {
 
     @Override
     @Transactional
+    public TeacherLessonResponse publishLesson(Integer id) {
+        log.info("Publishing teacher lesson id: {}", id);
+        TeacherLesson lesson = lessonRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.TEACHER_LESSON_NOT_FOUND));
+
+        if (lesson.getLessonStatus() != TeacherLessonStatus.DRAFT) {
+            throw new AppException(ErrorCode.LESSON_NOT_DRAFT);
+        }
+
+        lesson.setLessonStatus(TeacherLessonStatus.PUBLISHED);
+        lesson = lessonRepository.save(lesson);
+        log.info("Lesson id: {} successfully published", id);
+        
+        return enrichLessonResponse(lessonMapper.toResponse(lesson));
+    }
+
+    @Override
+    @Transactional
     public void deleteLesson(Integer id) {
         log.info("Deleting teacher lesson id: {}", id);
         TeacherLesson lesson = lessonRepository.findById(id)

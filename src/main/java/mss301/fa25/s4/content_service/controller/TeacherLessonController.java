@@ -108,7 +108,7 @@ public class TeacherLessonController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @lessonSecurityService.isOwner(#id, authentication.principal)")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ApiResponse<TeacherLessonResponse> updateLesson(
             @PathVariable Integer id,
             @Valid @RequestBody TeacherLessonUpdateRequest request) {
@@ -149,8 +149,18 @@ public class TeacherLessonController {
                 .build();
     }
 
+    @PostMapping("/{id}/publish")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @Operation(summary = "Publish a draft lesson", description = "Change lesson status from DRAFT to PUBLISHED")
+    public ApiResponse<TeacherLessonResponse> publishLesson(@PathVariable Integer id) {
+        log.info("REST request to publish lesson id: {}", id);
+        return ApiResponse.<TeacherLessonResponse>builder()
+                .result(lessonService.publishLesson(id))
+                .build();
+    }
+
     @GetMapping("/{id}/analytics")
-    @PreAuthorize("hasRole('ADMIN') or @lessonSecurityService.isOwner(#id, authentication.principal)")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ApiResponse<LessonAnalyticsResponse> getLessonAnalytics(@PathVariable Integer id) {
         log.info("REST request to get analytics for lesson id: {}", id);
         return ApiResponse.<LessonAnalyticsResponse>builder()

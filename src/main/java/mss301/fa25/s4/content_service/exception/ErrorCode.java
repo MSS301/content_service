@@ -27,6 +27,7 @@ public enum ErrorCode {
     TEACHER_LESSON_NOT_FOUND(2007, "Teacher lesson not found", HttpStatus.NOT_FOUND),
     TEACHER_LESSON_UNAUTHORIZED(2008, "You are not authorized to access this lesson", HttpStatus.FORBIDDEN),
     INVALID_LESSON_STATUS(2009, "Invalid lesson status", HttpStatus.BAD_REQUEST),
+    LESSON_NOT_DRAFT(2014, "Lesson is not in draft status", HttpStatus.BAD_REQUEST),
 
     // File errors
     LESSON_FILE_NOT_FOUND(2010, "Lesson file not found", HttpStatus.NOT_FOUND),
